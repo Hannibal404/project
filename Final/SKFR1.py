@@ -4,20 +4,9 @@ import numpy as np
 import matplotlib.pyplot as plot
 
 
-def removearray(L: list, arr: np.array):
-    ind = 0
-    size = len(L)
-    while ind != size and not np.array_equal(L[ind], arr):
-        ind += 1
-    if ind != size:
-        L.pop(ind)
-    else:
-        raise ValueError('array not found in list.')
-
-
 class Cluster:
-    def __init__(self, a: int, b: int):
-        self.centroid = np.array([a, b])
+    def __init__(self, arr: list):
+        self.centroid = np.array(arr)
         self.members = []
 
     def getCentroid(self):
@@ -33,10 +22,19 @@ class Cluster:
         self.members.append(newMember)
 
     def removeMember(self, member: np.array):
-        removearray(self.members, member)
+        L = self.members
+        ind = 0
+        size = len(L)
+        while ind != size and not np.array_equal(L[ind], member):
+            ind += 1
+        if ind != size:
+            L.pop(ind)
+        else:
+            raise ValueError('array not found in list.')
 
     def getLength(self):
         return len(self.members)
+
 
 
 def distance(a: np.array, b: np.array):
@@ -53,23 +51,23 @@ for line in lines:
 nDim = len(points[0])
 x = np.array([0 for i in range(nDim)])
 k = 8
-s = 1
+s = 2
 for point in points:
     x = x + point
 n = len(points)
-totalCentroid = x/n         # Centroid of all data points
 
+totalCentroid = x/n     # Initial totalCentroid 
 
 clusters = []
 
-for i in range(k):          # Getting centroids for clustering around the totalCentroid
-    angle = i * ((2*math.pi)/k)
-    clusters.append(
-        Cluster(totalCentroid[0] + math.cos(angle), totalCentroid[1] + math.sin(angle)))
+for i in range(k):      # set of clusters around the initial total Centroid
+    randSign = np.random(10)
+    randMag = np.random(1.0)
+    clusters.append(totalCentroid[i]+((-1)**randSign)*randMag for i in range (nDim))
 
 
-# Initialization
-for point in points:
+
+for point in points:    # Assigning data sets to the nearest cluster in the previous formed set
     group = clusters[0]
     dist = distance(point, clusters[0].getCentroid())
     for cluster in clusters:
@@ -79,23 +77,13 @@ for point in points:
             group = cluster
     group.addMember(point)
 
-# updating clusters with the (first) assigned data sets to each cluster
-for cluster in clusters:
-    x = np.array([0 for i in range(nDim)])
-    members = cluster.getMembers()
-    for member in members:
-        x += member
-
-    n = len(cluster.getMembers())
-    if n != 0:
-        cluster.setCentroid(x/n)
-
+# beginning of the clustering process
 z = 1
 change = True
 while change == True:
     z += 1
     change = False
-    # Centroid calculation for each cluster
+    # Centroid calculation
     for cluster in clusters:
         x = np.array([0 for i in range(nDim)])
         members = cluster.getMembers()
@@ -114,9 +102,10 @@ while change == True:
         for cluster in clusters:
             dl += cluster.getLength() * (cluster.getCentroid()[l] ** 2)
         featureRanks.append((l, dl))
-
+    
+    # Sorting the feature ranks in decending order of ranks of each feature 
     featureRanks.sort(key=lambda x: x[1], reverse=True)
-
+    # Selecting the features with rank less than s
     features = set([featureRanks[i][0] for i in range(s)])
 
     for cluster in clusters:
