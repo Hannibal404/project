@@ -4,17 +4,6 @@ import numpy as np
 import matplotlib.pyplot as plot
 
 
-def removearray(L: list, arr: np.array):
-    ind = 0
-    size = len(L)
-    while ind != size and not np.array_equal(L[ind], arr):
-        ind += 1
-    if ind != size:
-        L.pop(ind)
-    else:
-        raise ValueError('array not found in list.')
-
-
 class Cluster:
     def __init__(self, arr: list):
         self.centroid = np.array(arr)
@@ -63,7 +52,6 @@ x = np.array([0 for i in range(nDim)])
 k = 8
 s = 2
 for point in points:
-    # print(type(x), type(point))
     x = x + point
 n = len(points)
 totalCentroid = x/n
@@ -73,9 +61,12 @@ clusters = []
 
 for i in range(k):
     angle = i * ((2*math.pi)/k)
-    clusters.append(
-        Cluster(totalCentroid[0] + math.cos(angle), totalCentroid[1] + math.sin(angle)))
 
+    # Seeding initial centroids
+    clusters.append(
+        Cluster([totalCentroid[0] + math.cos(angle), totalCentroid[1] + math.sin(angle)]))
+
+# Initial cluster assignment
 for point in points:
     group = clusters[0]
     dist = distance(point, clusters[0].getCentroid())
@@ -86,11 +77,13 @@ for point in points:
             group = cluster
     group.addMember(point)
 
-z = 1
+
+z = 1  # Measuring number of iterations
 change = True
 while change == True:
     z += 1
     change = False
+
     # Centroid calculation
     for cluster in clusters:
         x = np.array([0 for i in range(nDim)])
@@ -101,6 +94,8 @@ while change == True:
         n = len(cluster.getMembers())
         if n != 0:
             cluster.setCentroid(x/n)
+
+        # Feature selection
         featureRanks = []
         for l in range(nDim):
             featureRanks.append(
@@ -109,17 +104,13 @@ while change == True:
 
         features = set([featureRanks[i][0] for i in range(s)])
         centroid = cluster.getCentroid()
+
+        # Setting non-informative features to be 0 to assist with implementation
         for l in range(nDim):
             if l not in features:
                 centroid[l] = 0
         cluster.setCentroid(centroid)
 
-    for cluster in clusters:
-        for i in range(nDim):
-            centroid = cluster.getCentroid()
-            if i not in features:
-                centroid[i] = 0
-            cluster.setCentroid(centroid)
     # Cluster reassignment
     for cluster in clusters:
         members = cluster.getMembers()

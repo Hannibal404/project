@@ -5,8 +5,8 @@ import matplotlib.pyplot as plot
 
 
 class Cluster:
-    def __init__(self, a: int, b: int):
-        self.centroid = np.array([a, b])
+    def __init__(self, arr: list):
+        self.centroid = np.array(arr)
         self.members = []
 
     def getCentroid(self):
@@ -52,7 +52,6 @@ x = np.array([0 for i in range(nDim)])
 k = 8
 s = 2
 for point in points:
-    # print(type(x), type(point))
     x = x + point
 n = len(points)
 totalCentroid = x/n
@@ -62,8 +61,10 @@ clusters = []
 
 for i in range(k):
     angle = i * ((2*math.pi)/k)
+
+    # Seeding initial centroids
     clusters.append(
-        Cluster(totalCentroid[0] + math.cos(angle), totalCentroid[1] + math.sin(angle)))
+        Cluster([totalCentroid[0] + math.cos(angle), totalCentroid[1] + math.sin(angle)]))
 
 for point in points:
     group = clusters[0]
