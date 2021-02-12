@@ -30,7 +30,6 @@ def distance(a: tuple, b: tuple):
 def getClusters(k,initial: tuple):
     clusters =[]
     for i in range(k):
-        
         angle = (i*((2*math.pi)/k))
         clusters.append(Cluster(initial[0] + math.cos(angle),initial[1]+math.sin(angle)))
     return clusters

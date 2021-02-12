@@ -17,12 +17,12 @@ def updateClusterCentroid(cluster):
 
 def changeInClusters(clusters, k):
     change = True
-    for i in range(k):
-        initial = clusters[k].getCentroid()
-        final = updateClusterCentroid(clusters[k])
-        if ((initial == final) and (i == k-1)):
-            return False
-
+    for cluster in clusters:
+        initial = cluster.getCentroid()
+        final = updateClusterCentroid(cluster)
+        if (initial == final):
+            change = False
+    return change
 
 def lloydClusters(points, k):
     x, y = 0, 0
@@ -34,24 +34,23 @@ def lloydClusters(points, k):
     totalCentroid = (x/n, y/n)
     # random cluster centroids around the intial point
     clusters = getClusters(k, totalCentroid)
-
     # assigning the points to the cluster
    
-    while (changeInClusters):
-        for point in points:
-            for cluster in clusters:
-                group = cluster
-                dist = distance(point, group.getCentroid())
-                # finding the cluster which is closest to the data entry
-                for cluster1 in clusters:
-                    tempCluster = cluster1
-                    tempDistance = distance(point,tempCluster.getCentroid())
-                    if (tempDistance < dist):
-                        dist = tempDistance
-                        minDistCluster = tempCluster
-                minDistCluster.addMember(point)
-        
-
+    for point in points:
+        for cluster in clusters:
+            group = cluster
+            dist = distance(point, group.getCentroid())
+            # finding the cluster which is closest to the data entry
+            for cluster1 in clusters:
+                tempCluster = cluster1
+                tempDistance = distance(point,tempCluster.getCentroid())
+                if (tempDistance < dist):
+                    dist = tempDistance
+                    minDistCluster = tempCluster
+            minDistCluster.addMember(point)
+            t = changeInClusters(clusters,k)
+            if (t==False):
+                break
     # for point in points:
     #     group = clusters[0]
     #     dist = distance(point,clusters[0].getCentroid())
