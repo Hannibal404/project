@@ -121,8 +121,8 @@ while change == True:
             djl = cluster.getLength()*(cluster.getCentroid()[l]**2)
         featureRanks.append((j,l,djl))
         j += 1     
-
-
+    featureRanks.sort(key =lambda x: x[2], reverse = True)
+    features = set([featureRanks[j][i][0]] for j in range (k) and for i in range (s))
 
     for cluster in clusters:
         for i in range(nDim):
