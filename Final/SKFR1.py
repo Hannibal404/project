@@ -54,20 +54,21 @@ x = np.array([0, 0])
 k = 8
 s = 2
 for point in points:
-    # print(type(x), type(point))
     x = x + point
 n = len(points)
-totalCentroid = x/n
+totalCentroid = x/n         # Centroid of all data points
 
 nDim = len(points[0])
 
 clusters = []
 
-for i in range(k):
+for i in range(k):          # Getting centroids for clustering around the totalCentroid
     angle = i * ((2*math.pi)/k)
     clusters.append(
         Cluster(totalCentroid[0] + math.cos(angle), totalCentroid[1] + math.sin(angle)))
 
+
+# Initialization
 for point in points:
     group = clusters[0]
     dist = distance(point, clusters[0].getCentroid())
@@ -78,6 +79,7 @@ for point in points:
             group = cluster
     group.addMember(point)
 
+# updating clusters with the (first) assigned data sets to each cluster
 for cluster in clusters:
     x = np.array([0, 0])
     members = cluster.getMembers()
@@ -87,16 +89,13 @@ for cluster in clusters:
     n = len(cluster.getMembers())
     if n != 0:
         cluster.setCentroid(x/n)
-    # print(cluster.getCentroid())
 
-# for cluster in clusters:
-#     print(len(cluster.getMembers()))
 z = 1
 change = True
 while change == True:
     z += 1
     change = False
-    # Centroid calculation
+    # Centroid calculation for each cluster
     for cluster in clusters:
         x = np.array([0, 0])
         members = cluster.getMembers()
@@ -106,10 +105,6 @@ while change == True:
         n = len(cluster.getMembers())
         if n != 0:
             cluster.setCentroid(x/n)
-        # print(cluster.getCentroid())
-
-    # for cluster in clusters:
-    #     print(len(cluster.getMembers()))
 
     # Feature ranking
     featureRanks = []
