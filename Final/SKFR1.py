@@ -50,16 +50,16 @@ lines = file.readlines()
 
 for line in lines:
     points.append(np.array(list(map(int, line.split()))))
-x = np.array([0, 0])
+nDim = len(points[0])
+x = np.array([0 for i in range(nDim)])
 k = 8
-s = 2
+s = 1
 for point in points:
     # print(type(x), type(point))
     x = x + point
 n = len(points)
 totalCentroid = x/n
 
-nDim = len(points[0])
 
 clusters = []
 
@@ -79,7 +79,7 @@ for point in points:
     group.addMember(point)
 
 for cluster in clusters:
-    x = np.array([0, 0])
+    x = np.array([0 for i in range(nDim)])
     members = cluster.getMembers()
     for member in members:
         x += member
@@ -98,7 +98,7 @@ while change == True:
     change = False
     # Centroid calculation
     for cluster in clusters:
-        x = np.array([0, 0])
+        x = np.array([0 for i in range(nDim)])
         members = cluster.getMembers()
         for member in members:
             x += member
