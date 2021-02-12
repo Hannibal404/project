@@ -4,17 +4,6 @@ import numpy as np
 import matplotlib.pyplot as plot
 
 
-def removearray(L: list, arr: np.array):
-    ind = 0
-    size = len(L)
-    while ind != size and not np.array_equal(L[ind], arr):
-        ind += 1
-    if ind != size:
-        L.pop(ind)
-    else:
-        raise ValueError('array not found in list.')
-
-
 class Cluster:
     def __init__(self, a: int, b: int):
         self.centroid = np.array([a, b])
@@ -33,7 +22,15 @@ class Cluster:
         self.members.append(newMember)
 
     def removeMember(self, member: np.array):
-        removearray(self.members, member)
+        L = self.members
+        ind = 0
+        size = len(L)
+        while ind != size and not np.array_equal(L[ind], member):
+            ind += 1
+        if ind != size:
+            L.pop(ind)
+        else:
+            raise ValueError('array not found in list.')
 
     def getLength(self):
         return len(self.members)
@@ -50,7 +47,8 @@ lines = file.readlines()
 
 for line in lines:
     points.append(np.array(list(map(int, line.split()))))
-x = np.array([0, 0])
+nDim = len(points[0])
+x = np.array([0 for i in range(nDim)])
 k = 8
 s = 2
 for point in points:
@@ -59,7 +57,6 @@ for point in points:
 n = len(points)
 totalCentroid = x/n
 
-nDim = len(points[0])
 
 clusters = []
 
@@ -78,19 +75,6 @@ for point in points:
             group = cluster
     group.addMember(point)
 
-for cluster in clusters:
-    x = np.array([0, 0])
-    members = cluster.getMembers()
-    for member in members:
-        x += member
-
-    n = len(cluster.getMembers())
-    if n != 0:
-        cluster.setCentroid(x/n)
-    # print(cluster.getCentroid())
-
-# for cluster in clusters:
-#     print(len(cluster.getMembers()))
 z = 1
 change = True
 while change == True:
@@ -98,7 +82,7 @@ while change == True:
     change = False
     # Centroid calculation
     for cluster in clusters:
-        x = np.array([0, 0])
+        x = np.array([0 for i in range(nDim)])
         members = cluster.getMembers()
         for member in members:
             x += member

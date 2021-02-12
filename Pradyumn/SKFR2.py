@@ -33,7 +33,15 @@ class Cluster:
         self.members.append(newMember)
 
     def removeMember(self, member: np.array):
-        removearray(self.members, member)
+        L = self.members
+        ind = 0
+        size = len(L)
+        while ind != size and not np.array_equal(L[ind], member):
+            ind += 1
+        if ind != size:
+            L.pop(ind)
+        else:
+            raise ValueError('array not found in list.')
 
     def getLength(self):
         return len(self.members)
@@ -53,22 +61,21 @@ for line in lines:
 nDim = len(points[0])
 x = np.array([0 for i in range(nDim)])
 k = 8
-s = 1
+s = 2
 for point in points:
+    # print(type(x), type(point))
     x = x + point
 n = len(points)
-totalCentroid = x/n         # Centroid of all data points
+totalCentroid = x/n
 
 
 clusters = []
 
-for i in range(k):          # Getting centroids for clustering around the totalCentroid
+for i in range(k):
     angle = i * ((2*math.pi)/k)
     clusters.append(
         Cluster(totalCentroid[0] + math.cos(angle), totalCentroid[1] + math.sin(angle)))
 
-
-# Initialization
 for point in points:
     group = clusters[0]
     dist = distance(point, clusters[0].getCentroid())
@@ -79,23 +86,12 @@ for point in points:
             group = cluster
     group.addMember(point)
 
-# updating clusters with the (first) assigned data sets to each cluster
-for cluster in clusters:
-    x = np.array([0 for i in range(nDim)])
-    members = cluster.getMembers()
-    for member in members:
-        x += member
-
-    n = len(cluster.getMembers())
-    if n != 0:
-        cluster.setCentroid(x/n)
-
 z = 1
 change = True
 while change == True:
     z += 1
     change = False
-    # Centroid calculation for each cluster
+    # Centroid calculation
     for cluster in clusters:
         x = np.array([0 for i in range(nDim)])
         members = cluster.getMembers()
@@ -105,19 +101,18 @@ while change == True:
         n = len(cluster.getMembers())
         if n != 0:
             cluster.setCentroid(x/n)
+        featureRanks = []
+        for l in range(nDim):
+            featureRanks.append(
+                (l, cluster.getLength() * (cluster.getCentroid()[l] ** 2)))
+        featureRanks.sort(key=lambda x: x[1], reverse=True)
 
-    # Feature ranking
-    featureRanks = []
-
-    for l in range(nDim):
-        dl = 0
-        for cluster in clusters:
-            dl += cluster.getLength() * (cluster.getCentroid()[l] ** 2)
-        featureRanks.append((l, dl))
-
-    featureRanks.sort(key=lambda x: x[1], reverse=True)
-
-    features = set([featureRanks[i][0] for i in range(s)])
+        features = set([featureRanks[i][0] for i in range(s)])
+        centroid = cluster.getCentroid()
+        for l in range(nDim):
+            if l not in features:
+                centroid[l] = 0
+        cluster.setCentroid(centroid)
 
     for cluster in clusters:
         for i in range(nDim):
