@@ -4,6 +4,17 @@ import numpy as np
 import matplotlib.pyplot as plot
 
 
+def removearray(L: list, arr: np.array):
+    ind = 0
+    size = len(L)
+    while ind != size and not np.array_equal(L[ind], arr):
+        ind += 1
+    if ind != size:
+        L.pop(ind)
+    else:
+        raise ValueError('array not found in list.')
+
+
 class Cluster:
     def __init__(self, a: int, b: int):
         self.centroid = np.array([a, b])
@@ -90,23 +101,18 @@ while change == True:
         n = len(cluster.getMembers())
         if n != 0:
             cluster.setCentroid(x/n)
-        # print(cluster.getCentroid())
+        featureRanks = []
+        for l in range(nDim):
+            featureRanks.append(
+                (l, cluster.getLength() * (cluster.getCentroid()[l] ** 2)))
+        featureRanks.sort(key=lambda x: x[1], reverse=True)
 
-    # for cluster in clusters:
-    #     print(len(cluster.getMembers()))
-
-    # Feature ranking
-    featureRanks = []
-
-    for l in range(nDim):
-        dl = 0
-        for cluster in clusters:
-            dl += cluster.getLength() * (cluster.getCentroid()[l] ** 2)
-        featureRanks.append((l, dl))
-
-    featureRanks.sort(key=lambda x: x[1], reverse=True)
-
-    features = set([featureRanks[i][0] for i in range(s)])
+        features = set([featureRanks[i][0] for i in range(s)])
+        centroid = cluster.getCentroid()
+        for l in range(nDim):
+            if l not in features:
+                centroid[l] = 0
+        cluster.setCentroid(centroid)
 
     for cluster in clusters:
         for i in range(nDim):
