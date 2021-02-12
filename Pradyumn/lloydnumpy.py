@@ -87,7 +87,7 @@ for cluster in clusters:
 #     print(len(cluster.getMembers()))
 z = 1
 change = True
-while change == True and z < 10:
+while change == True:
     z += 1
     change = False
     for cluster in clusters:
