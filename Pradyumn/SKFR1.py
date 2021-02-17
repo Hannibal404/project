@@ -40,13 +40,14 @@ def distance(a: np.array, b: np.array):
     return np.linalg.norm(a - b)
 
 
-file = open("SKFR dataset 8 clusters.txt")
+file = open("Pradyumn/SKFR dataset 8 clusters.txt")
 points = []
 
 lines = file.readlines()
 
 for line in lines:
-    points.append(np.array(list(map(int, line.split()))))
+    points.append(
+        np.array(list(map(lambda x: x//100, map(int, line.split())))))
 nDim = len(points[0])
 x = np.array([0 for i in range(nDim)])
 k = 8
@@ -55,16 +56,21 @@ for point in points:
     x = x + point
 n = len(points)
 totalCentroid = x/n
+diffSq = 0
 
+for point in points:
+    diffSq += abs(np.linalg.norm(point - totalCentroid))
+
+variance = diffSq / n
+std = math.sqrt(variance)
 
 clusters = []
 
 for i in range(k):
     angle = i * ((2*math.pi)/k)
+    clusters.append(Cluster(
+        [totalCentroid[0] + (std * math.cos(angle)), totalCentroid[1] + (std * math.sin(angle))]))
 
-    # Seeding initial centroids
-    clusters.append(
-        Cluster([totalCentroid[0] + math.cos(angle), totalCentroid[1] + math.sin(angle)]))
 
 for point in points:
     group = clusters[0]
@@ -78,7 +84,8 @@ for point in points:
 
 z = 1
 change = True
-while change == True:
+while change == True and z < 10:
+    print(z)
     z += 1
     change = False
     # Centroid calculation
@@ -124,9 +131,14 @@ while change == True:
             for cluster2 in clusters:
                 tdist = distance(member, cluster2.getCentroid())
                 if tdist < dist:
+                    # print("t",tdist, dist)
+                    # print(member)
+                    # print(centroid, cluster2.getCentroid())
+                    # print(distance(member, cluster2.getCentroid()), distance(member, cluster.getCentroid()))
                     dist = tdist
                     group = cluster2
-            if cluster2 == cluster:
+            if group == cluster:
+                # print("same")
                 continue
             else:
                 change = True
@@ -136,7 +148,25 @@ while change == True:
 for cluster in clusters:
     print(len(cluster.getMembers()))
 
-memberlist = clusters[7].getMembers()
-print(z)
-plot.scatter(*zip(*memberlist))
+# memberlist = clusters[6].getMembers()
+# print(z)
+# plot.scatter(*zip(*memberlist))
+# plot.show()
+
+if clusters[0].getLength() > 0:
+    plot.scatter(*zip(*clusters[0].getMembers()),c="red")
+if clusters[1].getLength() > 0:
+    plot.scatter(*zip(*clusters[1].getMembers()),c="green")
+if clusters[2].getLength() > 0:
+    plot.scatter(*zip(*clusters[2].getMembers()),c="blue")
+if clusters[3].getLength() > 0:
+    plot.scatter(*zip(*clusters[3].getMembers()),c="purple")
+if clusters[4].getLength() > 0:
+    plot.scatter(*zip(*clusters[4].getMembers()),c="yellow")
+if clusters[5].getLength() > 0:
+    plot.scatter(*zip(*clusters[5].getMembers()),c="orange")
+if clusters[6].getLength() > 0:
+    plot.scatter(*zip(*clusters[6].getMembers()),c="cyan")
+if clusters[7].getLength() > 0:
+    plot.scatter(*zip(*clusters[7].getMembers()),c="black")
 plot.show()
