@@ -84,20 +84,27 @@ for point in points:
 
 z = 1
 change = True
-while change == True and z < 10:
+while change == True:
+    changes = 0
+
     print(z)
+    print("cluster members")
+    for cluster in clusters:
+        print(cluster.getLength(), end=" ")
+    print()
+
     z += 1
     change = False
     # Centroid calculation
     for cluster in clusters:
-        x = np.array([0 for i in range(nDim)])
+        x = np.array([0] * nDim, dtype="int64")
         members = cluster.getMembers()
         for member in members:
             x += member
 
-        n = len(cluster.getMembers())
-        if n != 0:
-            cluster.setCentroid(x/n)
+        nMembers = cluster.getLength()
+        if nMembers != 0:
+            cluster.setCentroid(x/nMembers)
         # print(cluster.getCentroid())
 
     # for cluster in clusters:
@@ -131,10 +138,12 @@ while change == True and z < 10:
             for cluster2 in clusters:
                 tdist = distance(member, cluster2.getCentroid())
                 if tdist < dist:
-                    # print("t",tdist, dist)
-                    # print(member)
-                    # print(centroid, cluster2.getCentroid())
-                    # print(distance(member, cluster2.getCentroid()), distance(member, cluster.getCentroid()))
+                    changes += 1
+                    # if z >10:
+                    #     print("t",tdist, dist)
+                    #     print(member)
+                    #     print(centroid, cluster2.getCentroid())
+                    #     print(distance(member, cluster2.getCentroid()), distance(member, cluster.getCentroid()))
                     dist = tdist
                     group = cluster2
             if group == cluster:
@@ -143,30 +152,33 @@ while change == True and z < 10:
             else:
                 change = True
                 cluster.removeMember(member)
-                cluster2.addMember(member)
+                group.addMember(member)
+    print(f"changes = {changes}")
 
+num = 0
 for cluster in clusters:
-    print(len(cluster.getMembers()))
-
+    num += cluster.getLength()
+    print(cluster.getLength())
+print("total =", num)
 # memberlist = clusters[6].getMembers()
 # print(z)
 # plot.scatter(*zip(*memberlist))
 # plot.show()
 
 if clusters[0].getLength() > 0:
-    plot.scatter(*zip(*clusters[0].getMembers()),c="red")
+    plot.scatter(*zip(*clusters[0].getMembers()), c="red")
 if clusters[1].getLength() > 0:
-    plot.scatter(*zip(*clusters[1].getMembers()),c="green")
+    plot.scatter(*zip(*clusters[1].getMembers()), c="green")
 if clusters[2].getLength() > 0:
-    plot.scatter(*zip(*clusters[2].getMembers()),c="blue")
+    plot.scatter(*zip(*clusters[2].getMembers()), c="blue")
 if clusters[3].getLength() > 0:
-    plot.scatter(*zip(*clusters[3].getMembers()),c="purple")
+    plot.scatter(*zip(*clusters[3].getMembers()), c="purple")
 if clusters[4].getLength() > 0:
-    plot.scatter(*zip(*clusters[4].getMembers()),c="yellow")
+    plot.scatter(*zip(*clusters[4].getMembers()), c="yellow")
 if clusters[5].getLength() > 0:
-    plot.scatter(*zip(*clusters[5].getMembers()),c="orange")
+    plot.scatter(*zip(*clusters[5].getMembers()), c="orange")
 if clusters[6].getLength() > 0:
-    plot.scatter(*zip(*clusters[6].getMembers()),c="cyan")
+    plot.scatter(*zip(*clusters[6].getMembers()), c="cyan")
 if clusters[7].getLength() > 0:
-    plot.scatter(*zip(*clusters[7].getMembers()),c="black")
+    plot.scatter(*zip(*clusters[7].getMembers()), c="black")
 plot.show()

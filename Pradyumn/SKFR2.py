@@ -56,6 +56,12 @@ for point in points:
 n = len(points)
 totalCentroid = x/n
 
+diffSq = 0
+for point in points:
+    diffSq += abs(np.linalg.norm(point - totalCentroid))
+
+variance = diffSq / n
+std = math.sqrt(variance)
 
 clusters = []
 
@@ -63,8 +69,8 @@ for i in range(k):
     angle = i * ((2*math.pi)/k)
 
     # Seeding initial centroids
-    clusters.append(
-        Cluster([totalCentroid[0] + math.cos(angle), totalCentroid[1] + math.sin(angle)]))
+    clusters.append(Cluster(
+        [totalCentroid[0] + (std * math.cos(angle)), totalCentroid[1] + (std * math.sin(angle))]))
 
 # Initial cluster assignment
 for point in points:
@@ -122,17 +128,38 @@ while change == True:
                 if tdist < dist:
                     dist = tdist
                     group = cluster2
-            if cluster2 == cluster:
+            if group == cluster:
                 continue
             else:
                 change = True
                 cluster.removeMember(member)
-                cluster2.addMember(member)
+                group.addMember(member)
 
+num = 0
 for cluster in clusters:
-    print(len(cluster.getMembers()))
+    num += cluster.getLength()
+    print(cluster.getLength())
+print("total =", num)
 
-memberlist = clusters[7].getMembers()
-print(z)
-plot.scatter(*zip(*memberlist))
+# memberlist = clusters[7].getMembers()
+# print(z)
+# plot.scatter(*zip(*memberlist))
+# plot.show()
+
+if clusters[0].getLength() > 0:
+    plot.scatter(*zip(*clusters[0].getMembers()), c="red")
+if clusters[1].getLength() > 0:
+    plot.scatter(*zip(*clusters[1].getMembers()), c="green")
+if clusters[2].getLength() > 0:
+    plot.scatter(*zip(*clusters[2].getMembers()), c="blue")
+if clusters[3].getLength() > 0:
+    plot.scatter(*zip(*clusters[3].getMembers()), c="purple")
+if clusters[4].getLength() > 0:
+    plot.scatter(*zip(*clusters[4].getMembers()), c="yellow")
+if clusters[5].getLength() > 0:
+    plot.scatter(*zip(*clusters[5].getMembers()), c="orange")
+if clusters[6].getLength() > 0:
+    plot.scatter(*zip(*clusters[6].getMembers()), c="cyan")
+if clusters[7].getLength() > 0:
+    plot.scatter(*zip(*clusters[7].getMembers()), c="black")
 plot.show()

@@ -36,7 +36,6 @@ class Cluster:
         return len(self.members)
 
 
-
 def distance(a: np.array, b: np.array):
     return np.linalg.norm(a - b)
 
@@ -47,7 +46,8 @@ points = []
 lines = file.readlines()
 
 for line in lines:
-    points.append(np.array(list(map(int, line.split()))))
+    points.append(
+        np.array(list(map(lambda x: x//100, map(int, line.split())))))
 nDim = len(points[0])
 x = np.array([0 for i in range(nDim)])
 k = 8
@@ -55,19 +55,24 @@ s = 2
 for point in points:
     x = x + point
 n = len(points)
+totalCentroid = x/n
+diffSq = 0
 
-totalCentroid = x/n     # Initial totalCentroid 
+for point in points:
+    diffSq += abs(np.linalg.norm(point - totalCentroid))
+
+variance = diffSq / n
+std = math.sqrt(variance)
 
 clusters = []
 
-for i in range(k):      # set of clusters around the initial total Centroid
-    randSign = np.random(10)
-    randMag = np.random(1.0)
-    clusters.append(totalCentroid[i]+((-1)**randSign)*randMag for i in range (nDim))
+for i in range(k):
+    angle = i * ((2*math.pi)/k)
+    clusters.append(Cluster(
+        [totalCentroid[0] + (std * math.cos(angle)), totalCentroid[1] + (std * math.sin(angle))]))
 
 
-
-for point in points:    # Assigning data sets to the nearest cluster in the previous formed set
+for point in points:
     group = clusters[0]
     dist = distance(point, clusters[0].getCentroid())
     for cluster in clusters:
@@ -77,22 +82,33 @@ for point in points:    # Assigning data sets to the nearest cluster in the prev
             group = cluster
     group.addMember(point)
 
-# beginning of the clustering process
 z = 1
 change = True
 while change == True:
+    changes = 0
+
+    print(z)
+    print("cluster members")
+    for cluster in clusters:
+        print(cluster.getLength(), end=" ")
+    print()
+
     z += 1
     change = False
     # Centroid calculation
     for cluster in clusters:
-        x = np.array([0 for i in range(nDim)])
+        x = np.array([0] * nDim, dtype="int64")
         members = cluster.getMembers()
         for member in members:
             x += member
 
-        n = len(cluster.getMembers())
-        if n != 0:
-            cluster.setCentroid(x/n)
+        nMembers = cluster.getLength()
+        if nMembers != 0:
+            cluster.setCentroid(x/nMembers)
+        # print(cluster.getCentroid())
+
+    # for cluster in clusters:
+    #     print(len(cluster.getMembers()))
 
     # Feature ranking
     featureRanks = []
@@ -102,10 +118,9 @@ while change == True:
         for cluster in clusters:
             dl += cluster.getLength() * (cluster.getCentroid()[l] ** 2)
         featureRanks.append((l, dl))
-    
-    # Sorting the feature ranks in decending order of ranks of each feature 
+
     featureRanks.sort(key=lambda x: x[1], reverse=True)
-    # Selecting the features with rank less than s
+
     features = set([featureRanks[i][0] for i in range(s)])
 
     for cluster in clusters:
@@ -123,19 +138,47 @@ while change == True:
             for cluster2 in clusters:
                 tdist = distance(member, cluster2.getCentroid())
                 if tdist < dist:
+                    changes += 1
+                    # if z >10:
+                    #     print("t",tdist, dist)
+                    #     print(member)
+                    #     print(centroid, cluster2.getCentroid())
+                    #     print(distance(member, cluster2.getCentroid()), distance(member, cluster.getCentroid()))
                     dist = tdist
                     group = cluster2
-            if cluster2 == cluster:
+            if group == cluster:
+                # print("same")
                 continue
             else:
                 change = True
                 cluster.removeMember(member)
-                cluster2.addMember(member)
+                group.addMember(member)
+    print(f"changes = {changes}")
 
+num = 0
 for cluster in clusters:
-    print(len(cluster.getMembers()))
+    num += cluster.getLength()
+    print(cluster.getLength())
+print("total =", num)
+# memberlist = clusters[6].getMembers()
+# print(z)
+# plot.scatter(*zip(*memberlist))
+# plot.show()
 
-memberlist = clusters[7].getMembers()
-print(z)
-plot.scatter(*zip(*memberlist))
+if clusters[0].getLength() > 0:
+    plot.scatter(*zip(*clusters[0].getMembers()), c="red")
+if clusters[1].getLength() > 0:
+    plot.scatter(*zip(*clusters[1].getMembers()), c="green")
+if clusters[2].getLength() > 0:
+    plot.scatter(*zip(*clusters[2].getMembers()), c="blue")
+if clusters[3].getLength() > 0:
+    plot.scatter(*zip(*clusters[3].getMembers()), c="purple")
+if clusters[4].getLength() > 0:
+    plot.scatter(*zip(*clusters[4].getMembers()), c="yellow")
+if clusters[5].getLength() > 0:
+    plot.scatter(*zip(*clusters[5].getMembers()), c="orange")
+if clusters[6].getLength() > 0:
+    plot.scatter(*zip(*clusters[6].getMembers()), c="cyan")
+if clusters[7].getLength() > 0:
+    plot.scatter(*zip(*clusters[7].getMembers()), c="black")
 plot.show()
